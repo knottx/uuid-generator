@@ -116,7 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
       children:
           UuidVersion.values.map((version) {
             return ChoiceChip(
-              label: Text(version.name.toUpperCase()),
+              label: Text(version.name),
               selected: _selectedVersion == version,
               onSelected: (selected) {
                 if (selected) {
