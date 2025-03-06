@@ -54,6 +54,29 @@ class _MyHomePageState extends State<MyHomePage> {
     generateUuid();
   }
 
+  void generateUuid() {
+    setState(() {
+      _uuid = _selectedVersion.uuid;
+    });
+  }
+
+  void copyToClipboard() {
+    if (_uuid.isEmpty) return;
+    Clipboard.setData(ClipboardData(text: _uuid));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Row(
+          spacing: 8,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.check_circle, color: Colors.green),
+            Text('Copied!'),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,65 +88,10 @@ class _MyHomePageState extends State<MyHomePage> {
             spacing: 24,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'UUID Generator',
-                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              Wrap(
-                spacing: 8,
-                alignment: WrapAlignment.center,
-                children:
-                    UuidVersion.values.map((version) {
-                      return ChoiceChip(
-                        label: Text(version.name.toUpperCase()),
-                        selected: _selectedVersion == version,
-                        onSelected: (selected) {
-                          if (selected) {
-                            setState(() {
-                              if (_selectedVersion != version) {
-                                _uuid = version.uuid;
-                              }
-                              _selectedVersion = version;
-                            });
-                          }
-                        },
-                      );
-                    }).toList(),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  spacing: 8,
-                  children: [
-                    SelectableText(
-                      _uuid,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.tertiary,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    IconButton(
-                      onPressed: copyToClipboard,
-                      icon: Icon(Icons.copy),
-                    ),
-                  ],
-                ),
-              ),
-              Center(
-                child: FilledButton(
-                  onPressed: generateUuid,
-                  style: FilledButton.styleFrom(minimumSize: Size(240, 48)),
-                  child: Text('Generate UUID'),
-                ),
-              ),
+              _title(),
+              _versionSelection(),
+              _displayUuid(),
+              _generateButton(),
             ],
           ),
         ),
@@ -131,27 +99,70 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void generateUuid() {
-    setState(() {
-      _uuid = _selectedVersion.uuid;
-    });
+  Widget _title() {
+    return Text(
+      'UUID Generator',
+      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+        color: Theme.of(context).colorScheme.primary,
+      ),
+      textAlign: TextAlign.center,
+    );
   }
 
-  void copyToClipboard() {
-    if (_uuid.isEmpty) return;
+  Widget _versionSelection() {
+    return Wrap(
+      spacing: 8,
+      alignment: WrapAlignment.center,
+      children:
+          UuidVersion.values.map((version) {
+            return ChoiceChip(
+              label: Text(version.name.toUpperCase()),
+              selected: _selectedVersion == version,
+              onSelected: (selected) {
+                if (selected) {
+                  setState(() {
+                    if (_selectedVersion != version) {
+                      _uuid = version.uuid;
+                    }
+                    _selectedVersion = version;
+                  });
+                }
+              },
+            );
+          }).toList(),
+    );
+  }
 
-    Clipboard.setData(ClipboardData(text: _uuid));
+  Widget _displayUuid() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      padding: const EdgeInsets.all(8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        spacing: 8,
+        children: [
+          SelectableText(
+            _uuid,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: Theme.of(context).colorScheme.tertiary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          IconButton(onPressed: copyToClipboard, icon: Icon(Icons.copy)),
+        ],
+      ),
+    );
+  }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Row(
-          spacing: 8,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.check_circle, color: Colors.green),
-            Text('Copied!'),
-          ],
-        ),
+  Widget _generateButton() {
+    return Center(
+      child: FilledButton(
+        onPressed: generateUuid,
+        style: FilledButton.styleFrom(minimumSize: Size(240, 48)),
+        child: Text('Generate UUID'),
       ),
     );
   }
